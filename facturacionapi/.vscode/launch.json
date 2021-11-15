@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-FacturacionapiApplication<facturacionapi>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.misiontic.facturacionapi.FacturacionapiApplication",
+            "projectName": "facturacionapi",
+            "args": ""
+        }
+    ]
+}
