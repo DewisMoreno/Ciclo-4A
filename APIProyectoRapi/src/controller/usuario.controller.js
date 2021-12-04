@@ -1,5 +1,6 @@
 const usuarioController = {};
 const Usuario = require('../model/usuario.model');
+const jwt = require('jsonwebtoken');
 
 usuarioController.getUsuarios = async (req,res) =>{ 
     try {
@@ -82,6 +83,36 @@ usuarioController.deleteUsuario = async (req,res) =>{
     } catch (error) {
         console.log(error);
         res.status(500).send("Ocurrió un error al eliminar el usuario");
+    }
+};
+
+usuarioController.tokenUsuario = async (req, response) => {
+    try {
+        //Busca que la clave enviada desde el front no este vacia
+        const {correo} = req.body;
+        const {clave} = req.body;
+        if(!(clave) || !(correo)){
+            response.status(400).send('credenciales requeridas');
+        }else{
+            const usr = await Usuario.findOne({correo:correo});
+            if(usr != null){//Verifica que exista la persona en la BD
+                //Se firma el token, anexando una clave privada del sistema en las variables de entorno
+                if(usr.clave === clave){
+                    const token = jwt.sign({userId:usr._id, clave}, process.env.TOKEN_KEY, {
+                        expiresIn:"24h"//Cantidad de tiempo para expirar el token
+                    })
+                    await Usuario.updateOne({correo:correo},{token:token})
+                    response.status(200).json(token);
+                }else{
+                    response.status(400).send('Clave incorrecta');     
+                }
+            }else{
+                response.status(400).send('Usuario no encontrado');
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        response.status(500).send("Ocurrio un error al iniciar sesión");
     }
 };
 
