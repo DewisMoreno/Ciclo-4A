@@ -64,7 +64,7 @@ usuarioController.editUsuario = async (req,res) =>{
                 clave: req.body.clave
             };
             await Usuario.updateOne({documento: req.params.documento},usuarioTemp);
-            res.status(201).send('Uuario actualizado exitosamente');
+            res.status(201).send('Usuario actualizado exitosamente');
         }
     } catch (error) {
         console.log(error);
@@ -89,25 +89,25 @@ usuarioController.deleteUsuario = async (req,res) =>{
 usuarioController.tokenUsuario = async (req, response) => {
     try {
         //Busca que la clave enviada desde el front no este vacia
-        const {correo} = req.body;
+        const {documento} = req.body;
         const {clave} = req.body;
-        if(!(clave) || !(correo)){
-            response.status(400).send('credenciales requeridas');
+        if(!(clave) || !(documento)){
+            response.status(200).send('credenciales requeridas');
         }else{
-            const usr = await Usuario.findOne({correo:correo});
+            const usr = await Usuario.findOne({documento:documento});
             if(usr != null){//Verifica que exista la persona en la BD
                 //Se firma el token, anexando una clave privada del sistema en las variables de entorno
                 if(usr.clave === clave){
-                    const token = jwt.sign({userId:usr._id, clave}, process.env.TOKEN_KEY, {
+                    const token = jwt.sign({userId:usr._id, correo:usr.correo, nombre:usr.nombre, apellido:usr.apellido}, process.env.TOKEN_KEY, {
                         expiresIn:"24h"//Cantidad de tiempo para expirar el token
                     })
-                    await Usuario.updateOne({correo:correo},{token:token})
+                    await Usuario.updateOne({documento:documento},{token:token})
                     response.status(200).json(token);
                 }else{
-                    response.status(400).send('Clave incorrecta');     
+                    response.status(200).send('Clave incorrecta');     
                 }
             }else{
-                response.status(400).send('Usuario no encontrado');
+                response.status(200).send('Usuario no encontrado');
             }
         }
     } catch (error) {
